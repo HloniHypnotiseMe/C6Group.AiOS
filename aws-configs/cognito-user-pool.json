@@ -1,0 +1,83 @@
+{
+  "PoolName": "c6group-ai-os-users",
+  "Policies": {
+    "PasswordPolicy": {
+      "MinimumLength": 12,
+      "RequireUppercase": true,
+      "RequireLowercase": true,
+      "RequireNumbers": true,
+      "RequireSymbols": true,
+      "TemporaryPasswordValidityDays": 7
+    }
+  },
+  "LambdaConfig": {},
+  "AutoVerifiedAttributes": [
+    "email"
+  ],
+  "AliasAttributes": [
+    "email"
+  ],
+  "UsernameAttributes": [
+    "email"
+  ],
+  "SmsVerificationMessage": "Your C6Group.AI OS verification code is {####}",
+  "EmailVerificationMessage": "Your C6Group.AI OS verification code is {####}",
+  "EmailVerificationSubject": "C6Group.AI OS - Verify Your Email",
+  "SmsConfiguration": {
+    "SnsCallerArn": "arn:aws:iam::ACCOUNT_ID:role/service-role/CognitoSNSRole",
+    "ExternalId": "c6group-ai-os-external-id"
+  },
+  "UserPoolTags": {
+    "Project": "C6Group-AI-OS",
+    "Environment": "Production",
+    "Service": "Authentication",
+    "Owner": "C6Group.AI"
+  },
+  "AdminCreateUserConfig": {
+    "AllowAdminCreateUserOnly": false,
+    "UnusedAccountValidityDays": 30,
+    "InviteMessageAction": "EMAIL",
+    "TemporaryPasswordValidityDays": 7
+  },
+  "UserPoolAddOns": {
+    "AdvancedSecurityMode": "ENFORCED"
+  },
+  "Schema": [
+    {
+      "Name": "email",
+      "AttributeDataType": "String",
+      "Required": true,
+      "Mutable": true,
+      "DeveloperOnlyAttribute": false
+    },
+    {
+      "Name": "name",
+      "AttributeDataType": "String",
+      "Required": true,
+      "Mutable": true,
+      "DeveloperOnlyAttribute": false
+    },
+    {
+      "Name": "role",
+      "AttributeDataType": "String",
+      "Required": false,
+      "Mutable": true,
+      "DeveloperOnlyAttribute": false
+    },
+    {
+      "Name": "company",
+      "AttributeDataType": "String",
+      "Required": false,
+      "Mutable": true,
+      "DeveloperOnlyAttribute": false
+    }
+  ],
+  "AccountRecoverySetting": {
+    "RecoveryMechanisms": [
+      {
+        "Priority": 1,
+        "Name": "verified_email"
+      }
+    ]
+  }
+}

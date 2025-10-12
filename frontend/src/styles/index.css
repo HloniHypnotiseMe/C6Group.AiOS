@@ -1,0 +1,188 @@
+/**
+ * C6Group.AI OS v1.0 – SUPERAAI System Initialization
+ * Global Styles - Dark-Gold Neo-Spiritual Theme
+ * 
+ * @description Main stylesheet with TailwindCSS and custom styles
+ * @author C6Group.AI Development Team
+ * @version 1.0.0
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-dark-900 text-white font-sans antialiased;
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(229, 185, 11, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(229, 185, 11, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(229, 185, 11, 0.02) 0%, transparent 50%);
+    min-height: 100vh;
+  }
+  
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #e5b90b #1a1a1a;
+  }
+  
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 4px;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background: #e5b90b;
+    border-radius: 4px;
+    border: 2px solid #1a1a1a;
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background: #f4d03f;
+  }
+}
+
+/* Component Styles */
+@layer components {
+  /* Buttons */
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-dark-900 font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-gold;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-dark-900 font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  
+  .btn-ghost {
+    @apply bg-transparent text-primary-500 hover:bg-primary-500/10 font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  
+  /* Cards */
+  .card {
+    @apply bg-dark-850/50 backdrop-blur-sm border border-primary-500/20 rounded-xl p-6 shadow-lg hover:shadow-gold-lg transition-all duration-300;
+  }
+  
+  .card-agent {
+    @apply card relative overflow-hidden;
+  }
+  
+  .card-agent::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-500 to-transparent;
+  }
+  
+  /* Form Elements */
+  .input-field {
+    @apply bg-dark-800 border border-primary-500/30 text-white placeholder-gray-400 rounded-lg px-4 py-3 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200;
+  }
+  
+  .input-field:focus {
+    @apply shadow-inner-gold;
+  }
+  
+  /* Status Indicators */
+  .status-online {
+    @apply bg-status-online text-white px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .status-offline {
+    @apply bg-status-offline text-white px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .status-processing {
+    @apply bg-status-processing text-white px-3 py-1 rounded-full text-sm font-medium animate-pulse;
+  }
+  
+  .status-standby {
+    @apply bg-status-standby text-white px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  /* Navigation */
+  .nav-link {
+    @apply text-gray-300 hover:text-primary-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200;
+  }
+  
+  .nav-link.active {
+    @apply text-primary-500 bg-primary-500/10;
+  }
+  
+  /* Agent Panels */
+  .agent-panel {
+    @apply relative bg-gradient-to-br from-dark-850/80 to-dark-800/60 backdrop-blur-sm border border-primary-500/20 rounded-2xl p-6 shadow-2xl overflow-hidden;
+  }
+  
+  .agent-panel::after {
+    content: '';
+    @apply absolute inset-0 bg-gold-shimmer bg-size-200 animate-shimmer opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none;
+  }
+  
+  /* Loading States */
+  .loading-spinner {
+    @apply animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500;
+  }
+  
+  .loading-pulse {
+    @apply animate-pulse bg-dark-800 rounded-lg;
+  }
+  
+  /* Animations */
+  .fade-in {
+    @apply animate-in fade-in duration-500;
+  }
+  
+  .slide-up {
+    @apply animate-in slide-in-from-bottom-4 duration-500;
+  }
+  
+  .glow-text {
+    @apply text-primary-500 animate-glow;
+  }
+  
+  /* Glass morphism effects */
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+  
+  .glass-dark {
+    @apply bg-dark-900/80 backdrop-blur-md border border-primary-500/20;
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  .text-shadow-gold {
+    text-shadow: 0 2px 4px rgba(229, 185, 11, 0.5);
+  }
+  
+  .bg-size-200 {
+    background-size: 200% 200%;
+  }
+  
+  .animate-in {
+    animation-fill-mode: both;
+  }
+  
+  /* Custom scrollbar for specific elements */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(229, 185, 11, 0.5) transparent;
+  }
+  
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}

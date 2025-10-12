@@ -1,0 +1,60 @@
+{
+  "ClientName": "c6group-ai-os-web-client",
+  "UserPoolId": "USER_POOL_ID_PLACEHOLDER",
+  "GenerateSecret": false,
+  "RefreshTokenValidity": 30,
+  "AccessTokenValidity": 60,
+  "IdTokenValidity": 60,
+  "TokenValidityUnits": {
+    "AccessToken": "minutes",
+    "IdToken": "minutes", 
+    "RefreshToken": "days"
+  },
+  "ReadAttributes": [
+    "email",
+    "email_verified",
+    "name",
+    "custom:role",
+    "custom:company"
+  ],
+  "WriteAttributes": [
+    "email",
+    "name",
+    "custom:role",
+    "custom:company"
+  ],
+  "ExplicitAuthFlows": [
+    "ALLOW_USER_SRP_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_CUSTOM_AUTH"
+  ],
+  "SupportedIdentityProviders": [
+    "COGNITO"
+  ],
+  "CallbackURLs": [
+    "https://os.c6group.co.za",
+    "https://os.c6group.co.za/dashboard",
+    "http://localhost:3000",
+    "http://localhost:3000/dashboard"
+  ],
+  "LogoutURLs": [
+    "https://os.c6group.co.za",
+    "https://os.c6group.co.za/login",
+    "http://localhost:3000",
+    "http://localhost:3000/login"
+  ],
+  "AllowedOAuthFlows": [
+    "code"
+  ],
+  "AllowedOAuthScopes": [
+    "phone",
+    "email", 
+    "openid",
+    "profile",
+    "aws.cognito.signin.user.admin"
+  ],
+  "AllowedOAuthFlowsUserPoolClient": true,
+  "PreventUserExistenceErrors": "ENABLED",
+  "EnableTokenRevocation": true,
+  "DefaultRedirectURI": "https://os.c6group.co.za"
+}
