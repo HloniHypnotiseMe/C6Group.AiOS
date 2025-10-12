@@ -1,0 +1,55 @@
+{
+  "Comment": "C6Group.AI OS v1.0 – SUPERAAI System DNS Configuration",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "os.c6group.co.za",
+        "Type": "A",
+        "AliasTarget": {
+          "DNSName": "AMPLIFY_DOMAIN_NAME_PLACEHOLDER",
+          "EvaluateTargetHealth": false,
+          "HostedZoneId": "Z2FDTNDATAQYW2"
+        }
+      }
+    },
+    {
+      "Action": "UPSERT", 
+      "ResourceRecordSet": {
+        "Name": "www.os.c6group.co.za",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [
+          {
+            "Value": "os.c6group.co.za"
+          }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "api.os.c6group.co.za", 
+        "Type": "A",
+        "AliasTarget": {
+          "DNSName": "API_GATEWAY_DOMAIN_PLACEHOLDER",
+          "EvaluateTargetHealth": false,
+          "HostedZoneId": "ZLY8HYME6SFDD"
+        }
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "_acme-challenge.os.c6group.co.za",
+        "Type": "TXT",
+        "TTL": 300,
+        "ResourceRecords": [
+          {
+            "Value": "\"SSL_VALIDATION_RECORD_PLACEHOLDER\""
+          }
+        ]
+      }
+    }
+  ]
+}

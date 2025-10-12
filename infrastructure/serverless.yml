@@ -1,0 +1,244 @@
+# C6Group.AI OS v1.0 – SUPERAAI System Initialization
+# Serverless Framework Configuration
+# 
+# Description: AWS Lambda deployment configuration for backend API
+# Author: C6Group.AI Development Team
+# Version: 1.0.0
+
+service: c6group-ai-os-backend
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  memorySize: 512
+  timeout: 30
+  
+  # Environment variables
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    AWS_REGION: ${self:provider.region}
+    DYNAMO_TABLE: ${self:service}-${self:provider.stage}-table
+    DYNAMO_TABLE_AGENTS: ${self:service}-${self:provider.stage}-agents
+    DYNAMO_TABLE_ACTIVITIES: ${self:service}-${self:provider.stage}-activities
+    DYNAMO_TABLE_METRICS: ${self:service}-${self:provider.stage}-metrics
+    COGNITO_USER_POOL_ID: ${env:COGNITO_USER_POOL_ID}
+    COGNITO_CLIENT_ID: ${env:COGNITO_CLIENT_ID}
+    JWT_SECRET: ${env:JWT_SECRET}
+    OPENAI_API_KEY: ${env:OPENAI_API_KEY}
+    BEDROCK_MODEL_ID: ${env:BEDROCK_MODEL_ID}
+    CORS_ORIGIN: ${env:CORS_ORIGIN, 'https://os.c6group.co.za'}
+
+  # IAM Role Statements
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:BatchGetItem
+        - dynamodb:BatchWriteItem
+      Resource:
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMO_TABLE}"
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMO_TABLE_AGENTS}"
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMO_TABLE_ACTIVITIES}"
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMO_TABLE_METRICS}"
+    - Effect: Allow
+      Action:
+        - bedrock:InvokeModel
+        - bedrock:InvokeModelWithResponseStream
+      Resource: "arn:aws:bedrock:${self:provider.region}::foundation-model/*"
+    - Effect: Allow
+      Action:
+        - cognito-idp:AdminGetUser
+        - cognito-idp:AdminListGroupsForUser
+      Resource: "arn:aws:cognito-idp:${self:provider.region}:*:userpool/${env:COGNITO_USER_POOL_ID}"
+    - Effect: Allow
+      Action:
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+      Resource: "arn:aws:logs:${self:provider.region}:*:*"
+
+# Functions
+functions:
+  api:
+    handler: index.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors:
+            origin: ${self:provider.environment.CORS_ORIGIN}
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Requested-With
+            allowCredentials: true
+      - http:
+          path: /
+          method: ANY
+          cors:
+            origin: ${self:provider.environment.CORS_ORIGIN}
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Requested-With
+            allowCredentials: true
+
+# Resources
+resources:
+  Resources:
+    # Main DynamoDB Table
+    MainTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMO_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+        Tags:
+          - Key: Project
+            Value: C6Group-AI-OS
+          - Key: Environment
+            Value: ${self:provider.stage}
+
+    # Agents Table
+    AgentsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMO_TABLE_AGENTS}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: agentId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: agentId
+            KeyType: HASH
+        Tags:
+          - Key: Project
+            Value: C6Group-AI-OS
+          - Key: Environment
+            Value: ${self:provider.stage}
+
+    # Activities Table
+    ActivitiesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMO_TABLE_ACTIVITIES}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: activityId
+            AttributeType: S
+          - AttributeName: agentId
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+        KeySchema:
+          - AttributeName: activityId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: AgentTimestampIndex
+            KeySchema:
+              - AttributeName: agentId
+                KeyType: HASH
+              - AttributeName: timestamp
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        Tags:
+          - Key: Project
+            Value: C6Group-AI-OS
+          - Key: Environment
+            Value: ${self:provider.stage}
+
+    # Metrics Table
+    MetricsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMO_TABLE_METRICS}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: metricId
+            AttributeType: S
+          - AttributeName: agentId
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+        KeySchema:
+          - AttributeName: metricId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: AgentMetricsIndex
+            KeySchema:
+              - AttributeName: agentId
+                KeyType: HASH
+              - AttributeName: timestamp
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+        Tags:
+          - Key: Project
+            Value: C6Group-AI-OS
+          - Key: Environment
+            Value: ${self:provider.stage}
+
+    # CloudWatch Log Group
+    ApiLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/lambda/${self:service}-${self:provider.stage}-api
+        RetentionInDays: 14
+
+# Plugins
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+
+# Custom configuration
+custom:
+  serverless-offline:
+    httpPort: 3001
+    lambdaPort: 3002
+    
+  dotenv:
+    path: ../.env
+
+# Package configuration
+package:
+  exclude:
+    - node_modules/**
+    - .git/**
+    - .env
+    - README.md
+    - package-lock.json
+  include:
+    - node_modules/aws-sdk/**
+    - node_modules/serverless-http/**

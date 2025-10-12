@@ -1,0 +1,41 @@
+{
+  "DomainName": "os.c6group.co.za",
+  "SubjectAlternativeNames": [
+    "www.os.c6group.co.za",
+    "api.os.c6group.co.za"
+  ],
+  "ValidationMethod": "DNS",
+  "DomainValidationOptions": [
+    {
+      "DomainName": "os.c6group.co.za",
+      "ValidationDomain": "c6group.co.za"
+    },
+    {
+      "DomainName": "www.os.c6group.co.za", 
+      "ValidationDomain": "c6group.co.za"
+    },
+    {
+      "DomainName": "api.os.c6group.co.za",
+      "ValidationDomain": "c6group.co.za"
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "Project",
+      "Value": "C6Group-AI-OS"
+    },
+    {
+      "Key": "Environment", 
+      "Value": "Production"
+    },
+    {
+      "Key": "Service",
+      "Value": "SUPERAAI-Control-System"
+    },
+    {
+      "Key": "Owner",
+      "Value": "C6Group.AI"
+    }
+  ],
+  "CertificateTransparencyLoggingPreference": "ENABLED"
+}
