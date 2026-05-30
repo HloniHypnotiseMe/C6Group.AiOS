@@ -1,0 +1,30 @@
+# C6 Group - System Configuration
+# Centralized configuration for all agents and services
+
+version: "1.0"
+last_updated: "2026-05-30"
+
+paths:
+  agent_os_root: "C:/Users/VAT PRODUCTION/agent-os"
+  memory_file: "C:/Users/VAT PRODUCTION/agent-os/memory_local.json"
+  semantic_db: "C:/Users/VAT PRODUCTION/agent-os/simple_memory.db"
+  logs_dir: "C:/Users/VAT PRODUCTION/agent-os/logs"
+  control_dir: "C:/Users/VAT PRODUCTION/agent-os/control"
+  config_dir: "C:/Users/VAT PRODUCTION/agent-os/config"
+  sandbox_dir: "C:/Users/VAT PRODUCTION/sandbox"
+  backups_dir: "C:/Users/VAT PRODUCTION/backups"
+
+services:
+  control_room:
+    host: "127.0.0.1"
+    port: 5000
+    enabled: true
+
+  ollama:
+    host: "localhost"
+    port: 11434
+    default_model: "tinyllama"
+    fallback_model: "phi"
+
+environment: "development"  # development | production
+debug_mode: false

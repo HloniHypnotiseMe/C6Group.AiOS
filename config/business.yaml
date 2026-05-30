@@ -1,0 +1,29 @@
+# C6 Group - Business Configuration
+
+company:
+  name: "C6 Group"
+  legal_name: "RemotePay Fintech Services Pty Ltd"
+  domain: "c6group.co.za"
+  emails:
+    info: "info@c6group.co.za"
+    support: "support@c6group.co.za"
+    sales: "sales@c6group.co.za"
+    legal: "legal@c6group.co.za"
+
+phase: "FOUNDATION_BUILDING"
+
+goals:
+  infrastructure:
+    uptime_target: 99.5
+    backup_verified: true
+  compliance:
+    popia_complete: true
+    paia_complete: true
+    dpa_complete: true
+    audit_logs: false
+  revenue:
+    monthly_target: 0
+    description: "No products yet - building foundation"
+
+metrics_enabled: true
+audit_enabled: false  # Enable after audit logging implemented

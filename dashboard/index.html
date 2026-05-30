@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>C6 Control Room</title>
+    <style>
+        body { font-family: monospace; background: #0a0a0a; color: #00ff00; padding: 20px; }
+        .header { border-bottom: 2px solid #00ff00; margin-bottom: 20px; }
+        .status { background: #111; border: 1px solid #333; padding: 20px; margin: 10px 0; }
+        .online { color: #00ff00; }
+        .offline { color: #ff0000; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px; margin: 5px; cursor: pointer; }
+        .chat { margin-top: 20px; }
+        .chat-input { width: 80%; padding: 10px; background: #111; color: #00ff00; border: 1px solid #333; }
+        .send-btn { padding: 10px 20px; }
+        .response { background: #111; border: 1px solid #333; padding: 10px; margin-top: 10px; min-height: 100px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>C6 CONTROL ROOM</h1>
+    </div>
+    <div class="status">
+        <h3>CEO Status: <span id="ceoStatus" class="offline">OFFLINE</span></h3>
+        <p>Cycles: <span id="cycleCount">0</span></p>
+        <p>Last Trend: <span id="lastTrend">--</span></p>
+        <button id="startBtn">START CEO</button>
+        <button id="stopBtn">STOP CEO</button>
+        <button id="refreshBtn">REFRESH</button>
+    </div>
+    <div class="chat">
+        <h3>COMMAND CENTER</h3>
+        <input type="text" id="cmdInput" class="chat-input" placeholder="Type command...">
+        <button id="sendBtn" class="send-btn">SEND</button>
+        <div class="response" id="response"></div>
+    </div>
+    <script>
+        async function fetchStatus() {
+            const res = await fetch('/api/status');
+            const data = await res.json();
+            document.getElementById('ceoStatus').innerHTML = data.ceo_running ? 'ONLINE' : 'OFFLINE';
+            document.getElementById('ceoStatus').className = data.ceo_running ? 'online' : 'offline';
+            document.getElementById('cycleCount').innerText = data.cycles;
+            document.getElementById('lastTrend').innerText = data.last_trend || '--';
+        }
+        async function sendCommand() {
+            const cmd = document.getElementById('cmdInput').value;
+            if (!cmd) return;
+            const res = await fetch('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: cmd })
+            });
+            const data = await res.json();
+            document.getElementById('response').innerHTML = data.reply;
+            document.getElementById('cmdInput').value = '';
+            if (data.action === 'refresh') setTimeout(fetchStatus, 1000);
+        }
+        document.getElementById('startBtn').onclick = async () => {
+            await fetch('/api/start', { method: 'POST' });
+            setTimeout(fetchStatus, 2000);
+        };
+        document.getElementById('stopBtn').onclick = async () => {
+            await fetch('/api/stop', { method: 'POST' });
+            setTimeout(fetchStatus, 2000);
+        };
+        document.getElementById('refreshBtn').onclick = fetchStatus;
+        document.getElementById('sendBtn').onclick = sendCommand;
+        document.getElementById('cmdInput').onkeypress = (e) => { if (e.key === 'Enter') sendCommand(); };
+        fetchStatus();
+        setInterval(fetchStatus, 10000);
+    </script>
+</body>
+</html>

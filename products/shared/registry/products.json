@@ -1,0 +1,36 @@
+{
+  "success_gps": {
+    "name": "Success GPS",
+    "description": "Personal success mentor app",
+    "version": "0.1.0",
+    "status": "planned",
+    "features": [
+      "goal_setting",
+      "daily_actions",
+      "progress_tracking"
+    ]
+  },
+  "doctor_booking": {
+    "name": "Doctor Booking System",
+    "description": "Queue management and appointment system",
+    "version": "0.1.0",
+    "status": "planned",
+    "features": [
+      "booking",
+      "queue",
+      "notifications",
+      "prescriptions"
+    ]
+  },
+  "market_intelligence": {
+    "name": "Market Intelligence",
+    "description": "AI-powered market trend reports",
+    "version": "0.1.0",
+    "status": "planned",
+    "features": [
+      "trend_scanning",
+      "reports",
+      "alerts"
+    ]
+  }
+}

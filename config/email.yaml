@@ -1,0 +1,21 @@
+# C6 Group - Email Configuration
+# Note: Currently forward-only. Sending requires external service.
+
+email_sending_enabled: false
+smtp_configured: false
+
+forwarding:
+  enabled: true
+  provider: "Cloudflare Email Routing"
+
+notification_emails:
+  alerts: "hloni@c6group.co.za"
+  reports: "info@c6group.co.za"
+  compliance: "legal@c6group.co.za"
+
+# Future SMTP configuration (when needed)
+smtp:
+  host: ""
+  port: 587
+  username: ""
+  tls: true

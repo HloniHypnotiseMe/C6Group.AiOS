@@ -1,0 +1,5 @@
+venv/
+*.pyc
+logs/*.log
+backups/
+audit/logs/*.jsonl
