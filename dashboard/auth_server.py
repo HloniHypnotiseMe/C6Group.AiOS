@@ -1,36 +1,24 @@
-"""
-C6 Control Room - Authenticated Server
-"""
-
 from flask import Flask, jsonify, send_from_directory, request, Response
 import json
 import os
-import subprocess
 from pathlib import Path
 from functools import wraps
-import base64
+import hashlib
 
 app = Flask(__name__, static_folder='.', template_folder='.')
-AGENT_OS_PATH = Path('C:/Users/VAT PRODUCTION/agent-os')
+
+AGENT_OS_PATH = Path('/app')
 MEMORY_FILE = AGENT_OS_PATH / 'memory_local.json'
-PID_FILE = AGENT_OS_PATH / 'ceo.pid'
-HTPASSWD_FILE = Path(__file__).parent / '.htpasswd'
+DEALS_FILE = AGENT_OS_PATH / 'deals.json'
+
+USERNAME = "admin"
+PASSWORD = "C6Control2026"
+PASSWORD_HASH = hashlib.sha256(PASSWORD.encode()).hexdigest()
 
 def check_auth(username, password):
-    """Check if username/password is valid"""
-    if not HTPASSWD_FILE.exists():
-        return True  # No auth file, allow access
-    with open(HTPASSWD_FILE, 'r') as f:
-        for line in f:
-            stored_user, stored_hash = line.strip().split(':', 1)
-            if stored_user == username:
-                # Verify password (Apache htpasswd format)
-                import crypt
-                return crypt.crypt(password, stored_hash) == stored_hash
-    return False
+    return username == USERNAME and hashlib.sha256(password.encode()).hexdigest() == PASSWORD_HASH
 
 def authenticate():
-    """Send 401 response for authentication"""
     return Response(
         'Authentication required', 401,
         {'WWW-Authenticate': 'Basic realm="C6 Control Room"'}
@@ -45,26 +33,23 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-def is_ceo_running():
-    if PID_FILE.exists():
-        try:
-            with open(PID_FILE, 'r') as f:
-                pid = int(f.read().strip())
-            os.kill(pid, 0)
-            return True
-        except:
-            pass
-    return False
+if not DEALS_FILE.exists():
+    with open(DEALS_FILE, 'w') as f:
+        json.dump([
+            {"id": "1", "partner": "Vantage AI", "value": "R250k", "stage": "negotiation"},
+            {"id": "2", "partner": "DataCore", "value": "R120k", "stage": "lead"},
+            {"id": "3", "partner": "HealthTech SA", "value": "R1.2M", "stage": "proposal"}
+        ], f, indent=2)
 
 @app.route('/')
 @requires_auth
 def index():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory('.', 'jarvis_dashboard.html')
 
 @app.route('/api/status')
 @requires_auth
 def status():
-    memory = {'cycles': 0, 'decisions': []}
+    memory = {}
     if MEMORY_FILE.exists():
         try:
             with open(MEMORY_FILE, 'r') as f:
@@ -72,70 +57,62 @@ def status():
         except:
             pass
     decisions = memory.get('decisions', [])
+    with open(DEALS_FILE, 'r') as f:
+        deals = json.load(f)
     return jsonify({
         'cycles': memory.get('cycles', 0),
         'last_trend': decisions[0].get('topic') if decisions else None,
-        'last_decision': decisions[0].get('decision') if decisions else None,
-        'decisions': decisions[:10],
-        'trends': ['AI automation', 'faceless YouTube', 'crypto recovery', 'AI businesses', 'passive income AI'],
-        'ceo_running': is_ceo_running(),
-        'moneyprinter_ready': True
+        'ceo_running': False,
+        'deals_count': len(deals),
+        'trends': ['AI automation', 'faceless YouTube', 'crypto recovery', 'AI businesses', 'passive income AI']
     })
+
+@app.route('/api/deals', methods=['GET'])
+@requires_auth
+def get_deals():
+    with open(DEALS_FILE, 'r') as f:
+        return jsonify(json.load(f))
+
+@app.route('/api/deals/add', methods=['POST'])
+@requires_auth
+def add_deal():
+    data = request.json
+    with open(DEALS_FILE, 'r') as f:
+        deals = json.load(f)
+    new_id = str(max([int(d.get('id', 0)) for d in deals]) + 1) if deals else '1'
+    deals.append({'id': new_id, 'partner': data['partner'], 'value': data['value'], 'stage': data['stage']})
+    with open(DEALS_FILE, 'w') as f:
+        json.dump(deals, f, indent=2)
+    return jsonify({'status': 'ok'})
+
+@app.route('/api/deals/delete', methods=['POST'])
+@requires_auth
+def delete_deal():
+    data = request.json
+    with open(DEALS_FILE, 'r') as f:
+        deals = json.load(f)
+    deals = [d for d in deals if d['id'] != data['id']]
+    with open(DEALS_FILE, 'w') as f:
+        json.dump(deals, f, indent=2)
+    return jsonify({'status': 'ok'})
 
 @app.route('/api/command', methods=['POST'])
 @requires_auth
 def command():
-    data = request.get_json()
+    data = request.json
     cmd = data.get('command', '').lower()
+    assistant = data.get('assistant', 'general')
     
-    if 'trend' in cmd:
+    if 'trends' in cmd:
         return jsonify({'reply': 'Top trends: AI automation, faceless YouTube, crypto recovery, AI businesses, passive income AI'})
-    elif 'video' in cmd:
-        return jsonify({'reply': 'Starting video generation. MoneyPrinterV2 is ready.'})
-    elif 'run' in cmd or 'start' in cmd:
-        bat_file = AGENT_OS_PATH / 'run_ceo_loop.bat'
-        if bat_file.exists():
-            proc = subprocess.Popen([str(bat_file)], shell=True, creationflags=subprocess.CREATE_NO_WINDOW)
-            with open(PID_FILE, 'w') as f:
-                f.write(str(proc.pid))
-            return jsonify({'reply': 'CEO started.', 'action': 'refresh'})
-        return jsonify({'reply': 'CEO batch file not found.'})
-    elif 'stop' in cmd:
-        if is_ceo_running():
-            with open(PID_FILE, 'r') as f:
-                pid = int(f.read().strip())
-            os.kill(pid, 9)
-            PID_FILE.unlink()
-            return jsonify({'reply': 'CEO stopped.', 'action': 'refresh'})
-        return jsonify({'reply': 'CEO not running.'})
+    elif 'deals' in cmd:
+        with open(DEALS_FILE, 'r') as f:
+            deals = json.load(f)
+        if deals:
+            reply = 'Active deals:\n' + '\n'.join([f"- {d['partner']} ({d['value']}) - {d['stage']}" for d in deals])
+            return jsonify({'reply': reply})
+        return jsonify({'reply': 'No active deals yet.'})
     else:
-        return jsonify({'reply': f'Command: "{cmd}". Try: trends, video, run, stop'})
+        return jsonify({'reply': f"Command: '{cmd}'. Try 'trends', 'deals', 'help'."})
 
-@app.route('/api/start', methods=['POST'])
-@requires_auth
-def start_ceo():
-    bat_file = AGENT_OS_PATH / 'run_ceo_loop.bat'
-    if bat_file.exists():
-        proc = subprocess.Popen([str(bat_file)], shell=True, creationflags=subprocess.CREATE_NO_WINDOW)
-        with open(PID_FILE, 'w') as f:
-            f.write(str(proc.pid))
-    return jsonify({'status': 'success'})
-
-@app.route('/api/stop', methods=['POST'])
-@requires_auth
-def stop_ceo():
-    if is_ceo_running():
-        with open(PID_FILE, 'r') as f:
-            pid = int(f.read().strip())
-        os.kill(pid, 9)
-        PID_FILE.unlink()
-    return jsonify({'status': 'success'})
-
-if __name__ == '__main__':
-    print('='*50)
-    print('C6 CONTROL ROOM (Authenticated)')
-    print('Username: admin')
-    print('Password: C6Control2026')
-    print('Open http://127.0.0.1:5000')
-    print('='*50)
-    app.run(host='127.0.0.1', port=5000, debug=False)
+application = app
